@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "678683577771",
+    "project_id": "gpsi-4d8c0",
+    "storage_bucket": "gpsi-4d8c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:678683577771:android:475edbe383027624bbd6ee",
+        "android_client_info": {
+          "package_name": "com.example.gpsi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeWmoyowIebzSUYCG0A-MK9MP9-1qDOZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
