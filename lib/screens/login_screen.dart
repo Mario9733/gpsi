@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gpsi/screens/register_screen.dart';
 import 'package:gpsi/screens/home_screen.dart';
 import 'package:gpsi/services/authentication_service.dart';
+import 'package:gpsi/app_styles.dart';
 
 class LoginScreen extends StatelessWidget {
   final AuthenticationService _authService = AuthenticationService();
@@ -33,10 +34,11 @@ class LoginScreen extends StatelessWidget {
                     hintText: 'Email',
                     fillColor: Colors.white,
                     filled: true,
-                    hintStyle: TextStyle(color: Colors.indigo), // Cor do texto do hint
+                    hintStyle: AppStyles.inputHintTextStyle, // Cor do texto do hint
                   ),
-                  style: TextStyle(color: Colors.indigo), // Cor do texto digitado
+                  style: AppStyles.inputTextStyle, // Cor do texto digitado
                 ),
+                
                 SizedBox(height: 20.0),
                 TextFormField(
                   controller: _senhaController,

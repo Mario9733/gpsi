@@ -62,10 +62,7 @@ class HomeScreen extends StatelessWidget {
                 backgroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
-              child: Text(
-                'Sair',
-                style: TextStyle(color: Colors.indigo, fontSize: 18),
-              ),
+              child: Text('Sair', style: TextStyle(color: Colors.indigo, fontSize: 20)),
               ),
               ],
             ),
