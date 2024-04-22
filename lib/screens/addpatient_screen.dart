@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gpsi/models/patient.dart'; // Importe o modelo Patient
+import 'package:gpsi/models/patient.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:gpsi/app_styles.dart'; // Importe o arquivo app_styles.dart
-import 'package:intl/intl.dart'; // Importe para formatação de data
+import 'package:gpsi/app_styles.dart';
+import 'package:intl/intl.dart';
 
 class AddPatientScreen extends StatefulWidget {
   @override
@@ -21,7 +21,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
   final TextEditingController _healthPlanController = TextEditingController();
   final TextEditingController _bloodTypeController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController(); // Adicionado para o email
+  final TextEditingController _emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +53,12 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                         hintStyle: AppStyles.inputHintTextStyle,
                       ),
                       style: AppStyles.inputTextStyle,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira o nome completo';
+                        }
+                        return null;
+                      },
                     ),
                     SizedBox(height: 20.0),
                     TextFormField(
@@ -144,7 +150,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                     ),
                     SizedBox(height: 20.0),
                     TextFormField(
-                      controller: _emailController, // Adicionado campo de email
+                      controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'Email',
                         fillColor: Colors.white,
@@ -152,23 +158,29 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                         hintStyle: AppStyles.inputHintTextStyle,
                       ),
                       style: AppStyles.inputTextStyle,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, insira o e-mail';
+                        }
+                        return null;
+                      },
                     ),
                     SizedBox(height: 20.0),
                     Center(
-                    child: ElevatedButton(
-                      onPressed: _addPatient,
-                      child: Text(
-                        'Adicionar Paciente',
-                        style: TextStyle(
-                          color: AppStyles.primaryColor, // Cor do texto
+                      child: ElevatedButton(
+                        onPressed: _addPatient,
+                        child: Text(
+                          'Adicionar Paciente',
+                          style: TextStyle(
+                            color: AppStyles.primaryColor,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white, // Cor de fundo
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                      ),
                     ),
-                  ),
                   ],
                 ),
               ),
@@ -180,52 +192,69 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
   }
 
   void _addPatient() async {
-    // Obtendo os valores dos campos de texto
-    String name = _nameController.text.trim();
-    String fatherName = _fatherNameController.text.trim();
-    String motherName = _motherNameController.text.trim();
-    String cpf = _cpfController.text.trim();
-    String dob = _dobController.text.trim();
-    String phone = _phoneController.text.trim();
-    String healthPlan = _healthPlanController.text.trim();
-    String bloodType = _bloodTypeController.text.trim();
-    String address = _addressController.text.trim();
-    String email = _emailController.text.trim(); // Adicionado campo de email
+    if (_formKey.currentState!.validate()) {
+      // Obtendo os valores dos campos de texto
+      String name = _nameController.text.trim();
+      String fatherName = _fatherNameController.text.trim();
+      String motherName = _motherNameController.text.trim();
+      String cpf = _cpfController.text.trim();
+      String dob = _dobController.text.trim();
+      String phone = _phoneController.text.trim();
+      String healthPlan = _healthPlanController.text.trim();
+      String bloodType = _bloodTypeController.text.trim();
+      String address = _addressController.text.trim();
+      String email = _emailController.text.trim();
 
-    // Adicionando o paciente ao Firebase Firestore
-    Patient newPatient = Patient(
-      name: name,
-      fatherName: fatherName,
-      motherName: motherName,
-      cpf: cpf,
-      dob: dob,
-      phone: phone,
-      healthPlan: healthPlan,
-      bloodType: bloodType,
-      address: address,
-      email: email, // Adicionado campo de email
-    );
+      // Adicionando o paciente ao Firebase Firestore
+      Patient newPatient = Patient(
+        name: name,
+        fatherName: fatherName,
+        motherName: motherName,
+        cpf: cpf,
+        dob: dob,
+        phone: phone,
+        healthPlan: healthPlan,
+        bloodType: bloodType,
+        address: address,
+        email: email,
+      );
 
-    // Formatando a data para usar no nome do documento
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('yyyyMMMMddHHmm').format(now);
+      // Adicionando ao Firebase Firestore
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          // Formatando a data para usar como parte do ID do documento
+          DateTime now = DateTime.now();
+          String formattedDate = DateFormat('yyyyMMdd').format(now);
 
-    // Adicionando ao Firebase Firestore
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        String userId = user.uid;
-        await FirebaseFirestore.instance.collection('Patient').doc(formattedDate).set(newPatient.toJson());
-        print('Paciente adicionado com sucesso!');
-        // Mostrar mensagem de sucesso ou redirecionar para a tela de sucesso
-        Navigator.pop(context);
-      } else {
-        print('Erro: Usuário não autenticado.');
-        // Mostrar mensagem de erro ou redirecionar para a tela de erro
+          // Obtendo a quantidade atual de documentos na subcoleção "pacientes"
+          QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+              .collection(user.email!) // Usando o e-mail do usuário como nome da coleção
+              .doc('pacientes') // Acessando a subcoleção "pacientes"
+              .collection('pacientes') // Criando uma subcoleção dentro de "pacientes"
+              .get();
+
+          int docCount = querySnapshot.docs.length;
+
+          // Criando o ID do documento no formato "anomesdia01", "anomesdia02", etc.
+          String documentId = formattedDate + (docCount + 1).toString().padLeft(2, '0');
+
+          // Adicionando o paciente à subcoleção "pacientes" dentro da coleção com o nome do e-mail do usuário
+          await FirebaseFirestore.instance
+              .collection(user.email!) // Usando o e-mail do usuário como nome da coleção
+              .doc('pacientes') // Acessando a subcoleção "pacientes"
+              .collection('pacientes') // Criando uma subcoleção dentro de "pacientes"
+              .doc(documentId) // Usando o ID do documento
+              .set(newPatient.toJson()); // Adicionando o paciente como um novo documento
+
+          print('Paciente adicionado com sucesso!');
+          Navigator.pop(context);
+        } else {
+          print('Erro: Usuário não autenticado.');
+        }
+      } catch (e) {
+        print('Erro ao adicionar paciente: $e');
       }
-    } catch (e) {
-      print('Erro ao adicionar paciente: $e');
-      // Mostrar mensagem de erro ou redirecionar para a tela de erro
     }
   }
 }

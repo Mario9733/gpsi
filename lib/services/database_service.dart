@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gpsi/models/patient.dart';
 import 'package:gpsi/models/session.dart';
-import 'package:gpsi/models/agendamento.dart'; // Importação corrigida
 
 
 class Agendamento {
@@ -37,12 +36,4 @@ class DatabaseService {
     }
   }
 
-  // Método para obter a agenda de um terapeuta
-  Stream<List<Agendamento>> getTherapistAgendamentos(String therapistId) {
-    return _db.collection('agendamentos').where('therapistId', isEqualTo: therapistId).snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return Agendamento.fromFirestore(doc); // Usar método factory para criar objetos Agendamento
-      }).toList();
-    });
-  }
 }

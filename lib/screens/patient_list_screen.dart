@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gpsi/screens/addpatient_screen.dart';
+import 'package:gpsi/screens/session_list_screen.dart';
 
 class PatientListScreen extends StatefulWidget {
   @override
@@ -22,7 +24,6 @@ class _PatientListScreenState extends State<PatientListScreen> {
             'Lista de Pacientes',
             style: TextStyle(color: Colors.white, fontSize: 24.0),
           ),
-
           SizedBox(height: 20), // Espaço de 20 pixels
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -51,7 +52,6 @@ class _PatientListScreenState extends State<PatientListScreen> {
                     ),
                   ),
                 ),
-                
                 IconButton(
                   icon: Icon(Icons.add, color: Colors.white), // Ícone "+" em cor branca
                   onPressed: () {
@@ -66,29 +66,41 @@ class _PatientListScreenState extends State<PatientListScreen> {
           ),
           Expanded(
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('patients').orderBy('name').snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection(FirebaseAuth.instance.currentUser!.email!)
+                  .doc('pacientes')
+                  .collection('pacientes')
+                  .orderBy('name')
+                  .snapshots(),
               builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(),
                   );
                 }
-                final patients = snapshot.data!.docs.where((doc) => doc['name'].toLowerCase().contains(_searchText.toLowerCase())).toList();
+                final patients = snapshot.data!.docs
+                    .where((doc) => doc['name'].toLowerCase().contains(_searchText.toLowerCase()))
+                    .toList();
                 return ListView.builder(
                   itemCount: patients.length,
                   itemBuilder: (BuildContext context, int index) {
+                    final patient = patients[index].data() as Map<String, dynamic>; // Obtém os dados do documento
+                    final name = patient['name'] ?? 'Nome não disponível'; // Verifica se o campo 'name' existe
+                    final phone = patient['phone'] ?? 'Telefone não disponível'; // Verifica se o campo 'phone' existe
                     return ListTile(
                       title: Text(
-                        patients[index]['name'],
+                        name.toString(),
                         style: TextStyle(color: Colors.white),
                       ),
                       subtitle: Text(
-                        patients[index]['age'].toString(),
+                        phone.toString(),
                         style: TextStyle(color: Colors.white),
                       ),
-                      // Implemente a lógica para ir para a tela de detalhes do paciente ao ser clicado
                       onTap: () {
-                        // Implemente aqui a lógica para navegar para a tela de detalhes do paciente
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SessionListScreen(patientId: patients[index].id, patientName: name)),
+                        );
                       },
                     );
                   },

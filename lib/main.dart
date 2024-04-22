@@ -4,6 +4,8 @@ import 'firebase_options.dart';
 import 'package:gpsi/screens/login_screen.dart';
 import 'package:gpsi/screens/register_screen.dart';
 import 'package:gpsi/screens/home_screen.dart';
+import 'package:gpsi/screens/patient_list_screen.dart';
+import 'package:gpsi/screens/addpatient_screen.dart';
 
 
 void main() async {
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
         '/home': (context) => HomeScreen(),
+        '/listpatient':(context) => PatientListScreen(),
+        '/addpatient':(context) => AddPatientScreen(),
       },
     );
   }

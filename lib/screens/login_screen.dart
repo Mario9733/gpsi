@@ -3,20 +3,24 @@ import 'package:gpsi/screens/register_screen.dart';
 import 'package:gpsi/screens/home_screen.dart';
 import 'package:gpsi/services/authentication_service.dart';
 import 'package:gpsi/app_styles.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatelessWidget {
   final AuthenticationService _authService = AuthenticationService();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.indigo, // Define a cor de fundo para azul
+      backgroundColor: Colors.indigo,
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            width: MediaQuery.of(context).size.width * 1, // 100% da largura da tela
+            width: MediaQuery.of(context).size.width * 1,
             padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -34,11 +38,10 @@ class LoginScreen extends StatelessWidget {
                     hintText: 'Email',
                     fillColor: Colors.white,
                     filled: true,
-                    hintStyle: AppStyles.inputHintTextStyle, // Cor do texto do hint
+                    hintStyle: AppStyles.inputHintTextStyle,
                   ),
-                  style: AppStyles.inputTextStyle, // Cor do texto digitado
+                  style: AppStyles.inputTextStyle,
                 ),
-                
                 SizedBox(height: 20.0),
                 TextFormField(
                   controller: _senhaController,
@@ -46,9 +49,9 @@ class LoginScreen extends StatelessWidget {
                     hintText: 'Senha',
                     fillColor: Colors.white,
                     filled: true,
-                    hintStyle: TextStyle(color: Colors.indigo), // Cor do texto do hint
+                    hintStyle: TextStyle(color: Colors.indigo),
                   ),
-                  style: TextStyle(color: Colors.indigo), // Cor do texto digitado
+                  style: TextStyle(color: Colors.indigo),
                 ),
                 SizedBox(height: 20.0),
                 ElevatedButton(
@@ -56,9 +59,11 @@ class LoginScreen extends StatelessWidget {
                     String email = _emailController.text;
                     String senha = _senhaController.text;
 
+                    // Efetua o login
                     bool loggedIn = await _authService.login(email, senha);
 
                     if (loggedIn) {
+                      // Após o login bem-sucedido, navega para a tela inicial
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -81,11 +86,11 @@ class LoginScreen extends StatelessWidget {
                       );
                     }
                   },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              ),
-                  child: Text('Login', style: TextStyle(color: Colors.indigo, fontSize: 20)), // Cor do texto do botão
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  ),
+                  child: Text('Login', style: TextStyle(color: Colors.indigo, fontSize: 20)),
                 ),
                 SizedBox(height: 20.0),
                 TextButton(
@@ -98,7 +103,8 @@ class LoginScreen extends StatelessWidget {
                   child: Text(
                     'Ainda não tem uma conta? Cadastre-se aqui.',
                     style: TextStyle(
-                      color: Colors.white, fontSize: 20),),
+                      color: Colors.white, fontSize: 20),
+                  ),
                 ),
               ],
             ),

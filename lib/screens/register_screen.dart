@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
@@ -7,15 +8,16 @@ class RegisterScreen extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.indigo, // Define a cor de fundo para azul
+      backgroundColor: Colors.indigo,
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            width: MediaQuery.of(context).size.width * 1, // 100% da largura da tela
+            width: MediaQuery.of(context).size.width * 1,
             padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -33,12 +35,10 @@ class RegisterScreen extends StatelessWidget {
                     hintText: 'Nome',
                     fillColor: Colors.white,
                     filled: true,
-                    hintStyle: TextStyle(color: Colors.indigo), // Cor do texto do hint
+                    hintStyle: TextStyle(color: Colors.indigo),
                   ),
-                  style: TextStyle(color: Colors.indigo), // Cor do texto digitado
+                  style: TextStyle(color: Colors.indigo),
                 ),
-
-                
                 SizedBox(height: 16.0),
                 TextFormField(
                   controller: _emailController,
@@ -46,11 +46,10 @@ class RegisterScreen extends StatelessWidget {
                     hintText: 'Email',
                     fillColor: Colors.white,
                     filled: true,
-                    hintStyle: TextStyle(color: Colors.indigo), // Cor do texto do hint
+                    hintStyle: TextStyle(color: Colors.indigo),
                   ),
-                  style: TextStyle(color: Colors.indigo), // Cor do texto digitado
+                  style: TextStyle(color: Colors.indigo),
                 ),
-
                 SizedBox(height: 16.0),
                 TextFormField(
                   controller: _passwordController,
@@ -58,12 +57,10 @@ class RegisterScreen extends StatelessWidget {
                     hintText: 'Senha',
                     fillColor: Colors.white,
                     filled: true,
-                    hintStyle: TextStyle(color: Colors.indigo), // Cor do texto do hint
+                    hintStyle: TextStyle(color: Colors.indigo),
                   ),
-                  style: TextStyle(color: Colors.indigo), // Cor do texto digitado
+                  style: TextStyle(color: Colors.indigo),
                 ),
-
-
                 SizedBox(height: 32.0),
                 ElevatedButton(
                   onPressed: () async {
@@ -78,13 +75,22 @@ class RegisterScreen extends StatelessWidget {
                         password: password,
                       );
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Usuário cadastrado com sucesso!', style: TextStyle(color: Colors.white)),
-                        ),
-                      );
+                      if (userCredential.user != null) {
+                        String userId = userCredential.user!.uid;
 
-                      Navigator.pop(context);
+                        // Usando o e-mail como nome da coleção sem substituir os pontos
+                        await _firestore.collection(email).doc('pacientes').set({});
+                        await _firestore.collection(email).doc('sessoes').set({});
+                        await _firestore.collection(email).doc('agenda').set({});
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Usuário cadastrado com sucesso!', style: TextStyle(color: Colors.white)),
+                          ),
+                        );
+
+                        Navigator.pop(context);
+                      }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -93,11 +99,11 @@ class RegisterScreen extends StatelessWidget {
                       );
                     }
                   },
-                style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              ),
-                  child: Text('Cadastrar', style: TextStyle(color: Colors.indigo, fontSize: 18)), // Cor do texto do botão
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  ),
+                  child: Text('Cadastrar', style: TextStyle(color: Colors.indigo, fontSize: 18)),
                 ),
               ],
             ),
