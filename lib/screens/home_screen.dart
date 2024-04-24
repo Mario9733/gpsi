@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gpsi/models/patient.dart';
 import 'package:gpsi/screens/patient_list_screen.dart';
 import 'package:gpsi/screens/agenda_screen.dart';
 import 'package:gpsi/screens/login_screen.dart';
@@ -72,4 +73,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-

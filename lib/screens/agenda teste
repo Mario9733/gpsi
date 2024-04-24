@@ -122,7 +122,7 @@ class AgendaScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.white), // Cor branca para o nome do paciente
                   ),
                   subtitle: Text(
-                    'Próxima sessão: $formattedNextSessionDateTime $formattedNextSessionTime',
+                    'Próxima sessão: $formattedNextSessionDateTime às $formattedNextSessionTime',
                     style: TextStyle(color: Colors.white), // Cor branca para a data e hora da sessão
                   ),
                 );
@@ -138,25 +138,13 @@ class AgendaScreen extends StatelessWidget {
     if (dateTime is Timestamp) {
       final formattedDate = DateFormat('dd/MM/yyyy').format(dateTime.toDate());
       final formattedTime = DateFormat('HH:mm').format(dateTime.toDate());
-
-      // Verifica se a hora é 00:00 e ajusta a exibição
-      if (formattedTime == '00:00') {
-        return '$formattedDate'; // Retorna apenas a data
-      } else {
-        return '$formattedDate às $formattedTime'; // Retorna a data e a hora
-      }
+      return '$formattedDate $formattedTime'; // Retorna a data e a hora formatadas
     } else if (dateTime is String) {
       final parsedDateTime = DateTime.tryParse(dateTime);
       if (parsedDateTime != null) {
         final formattedDate = DateFormat('dd/MM/yyyy').format(parsedDateTime);
         final formattedTime = DateFormat('HH:mm').format(parsedDateTime);
-
-        // Verifica se a hora é 00:00 e ajusta a exibição
-        if (formattedTime == '00:00') {
-          return '$formattedDate'; // Retorna apenas a data
-        } else {
-          return '$formattedDate às $formattedTime'; // Retorna a data e a hora
-        }
+        return '$formattedDate $formattedTime'; // Retorna a data e a hora formatadas
       }
     }
     return 'Data inválida';

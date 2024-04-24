@@ -19,6 +19,7 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
   TextEditingController _diagnosisController = TextEditingController();
   TextEditingController _treatmentController = TextEditingController();
   TextEditingController _nextSessionDateController = TextEditingController();
+  TextEditingController _nextSessionTimeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,7 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Adicionar Paciente',
+              'Adicionar Sessão',
               style: AppStyles.titleTextStyle,
             ),
             SizedBox(height: 20), // Espaçamento
@@ -70,31 +71,61 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
               maxLines: null,
             ),
             SizedBox(height: 20),
-            TextFormField(
-              controller: _nextSessionDateController,
-              decoration: InputDecoration(
-                labelText: 'Próxima sessão',
-                labelStyle: TextStyle(color: Colors.white),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-              ),
-              style: TextStyle(color: Colors.white),
-              readOnly: true,
-              onTap: () async {
-                DateTime? selectedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime(2100),
-                );
-                if (selectedDate != null) {
-                  setState(() {
-                    _nextSessionDateController.text = DateFormat('dd/MM/yyyy').format(selectedDate);
-                  });
-                }
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _nextSessionDateController,
+                    decoration: InputDecoration(
+                      labelText: 'Próxima sessão (Data)',
+                      labelStyle: TextStyle(color: Colors.white),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                    ),
+                    style: TextStyle(color: Colors.white),
+                    readOnly: true,
+                    onTap: () async {
+                      DateTime? selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
+                      );
+                      if (selectedDate != null) {
+                        setState(() {
+                          _nextSessionDateController.text = DateFormat('dd/MM/yyyy').format(selectedDate);
+                        });
+                      }
+                    },
+                  ),
+                ),
+                SizedBox(width: 20),
+                Expanded(
+                  child: TextFormField(
+                    controller: _nextSessionTimeController,
+                    decoration: InputDecoration(
+                      labelText: 'Hora',
+                      labelStyle: TextStyle(color: Colors.white),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                    ),
+                    style: TextStyle(color: Colors.white),
+                    readOnly: true,
+                    onTap: () async {
+                      TimeOfDay? selectedTime = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (selectedTime != null) {
+                        setState(() {
+                          _nextSessionTimeController.text = selectedTime.format(context);
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
-
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
@@ -120,9 +151,10 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
     String diagnosis = _diagnosisController.text.trim();
     String treatment = _treatmentController.text.trim();
     String nextSessionDate = _nextSessionDateController.text.trim();
+    String nextSessionTime = _nextSessionTimeController.text.trim();
 
     // Verifica se todos os campos foram preenchidos
-    if (symptoms.isEmpty || diagnosis.isEmpty || treatment.isEmpty || nextSessionDate.isEmpty) {
+    if (symptoms.isEmpty || diagnosis.isEmpty || treatment.isEmpty || nextSessionDate.isEmpty || nextSessionTime.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Por favor, preencha todos os campos.'),
@@ -131,21 +163,20 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
       return;
     }
 
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
         // Criar a nova sessão
         Session newSession = Session(
           symptoms: symptoms,
           diagnosis: diagnosis,
           treatment: treatment,
           nextSessionDate: DateFormat('dd/MM/yyyy').parse(nextSessionDate),
+          nextSessionTime: TimeOfDay.fromDateTime(DateFormat('HH:mm').parse(nextSessionTime)),
         );
 
-        
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
         // Formatando a data para usar como parte do ID do documento
-        DateTime now = DateTime.now();
-        String formattedDate = DateFormat('yyyyMMdd').format(now);
+        String formattedDate = DateFormat('yyyyMMdd').format(newSession.nextSessionDate);
 
         // Obtendo a quantidade atual de documentos na subcoleção "sessoes"
         QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -159,14 +190,22 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
         // Formatar o ID da sessão
         String documentId = formattedDate + (docCount + 1).toString().padLeft(2, '0');
 
-
         // Salvar a sessão no Firebase Firestore
         await FirebaseFirestore.instance
             .collection(user.email!)
             .doc('sessoes') // Utilizando o ID do paciente como documento base
             .collection('sessoes')
             .doc(documentId)
-            .set(newSession.toJson());
+            .set({
+              'patientId': widget.patientId, // Adiciona o ID do paciente na sessão
+              'symptoms': symptoms,
+              'diagnosis': diagnosis,
+              'treatment': treatment,
+              'nextSessionDate': Timestamp.fromDate(newSession.nextSessionDate),
+              'nextSessionTime': nextSessionTime,
+              'nextSessionTimeHour': newSession.nextSessionTime.hour,
+              'nextSessionTimeMinute': newSession.nextSessionTime.minute,
+            });
 
         // Exibir mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
@@ -180,6 +219,7 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
         _diagnosisController.clear();
         _treatmentController.clear();
         _nextSessionDateController.clear();
+        _nextSessionTimeController.clear();
 
         // Retornar para a tela anterior
         Navigator.pop(context);

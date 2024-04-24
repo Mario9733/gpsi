@@ -52,6 +52,7 @@ class LoginScreen extends StatelessWidget {
                     hintStyle: TextStyle(color: Colors.indigo),
                   ),
                   style: TextStyle(color: Colors.indigo),
+                  obscureText: true, // Esta linha torna o texto obscuro
                 ),
                 SizedBox(height: 20.0),
                 ElevatedButton(

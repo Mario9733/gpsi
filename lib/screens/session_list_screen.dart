@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gpsi/screens/SessionDetailsScreen.dart';
 import 'package:intl/intl.dart';
-import 'package:gpsi/screens/add_session_screen.dart'; // Importe a tela de adicionar sessão
+import 'package:gpsi/screens/add_session_screen.dart';
 
 class SessionListScreen extends StatefulWidget {
   final String patientId;
@@ -62,7 +63,9 @@ class _SessionListScreenState extends State<SessionListScreen> {
                         IconButton(
                           icon: Icon(Icons.search, color: Colors.indigo),
                           onPressed: () {
-                            // Implemente a lógica de busca
+                            setState(() {
+                              _searchText = _searchController.text;
+                            });
                           },
                         ),
                       ],
@@ -86,12 +89,9 @@ class _SessionListScreenState extends State<SessionListScreen> {
           Expanded(
             child: StreamBuilder(
               stream: FirebaseFirestore.instance
-                  .collection(FirebaseAuth.instance.currentUser!.email!)
-                  .doc('pacientes')
-                  .collection('sessions')
-                  .doc(widget.patientId)
-                  .collection('sessions')
-                  .orderBy('date', descending: true)
+                  .collection(FirebaseAuth.instance.currentUser!.email!) // Coleção principal com o nome do e-mail do usuário
+                  .doc('sessoes')
+                  .collection('sessoes') // Coleção onde as sessões estão armazenadas
                   .snapshots(),
               builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (!snapshot.hasData) {
@@ -99,23 +99,32 @@ class _SessionListScreenState extends State<SessionListScreen> {
                     child: CircularProgressIndicator(),
                   );
                 }
-                final sessions = snapshot.data!.docs
-                    .where((doc) => DateFormat('dd/MM/yyyy').format((doc['date'] as Timestamp).toDate()).contains(_searchText))
-                    .toList();
+
                 return ListView.builder(
-                  itemCount: sessions.length,
+                  itemCount: snapshot.data!.docs.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final session = sessions[index].data() as Map<String, dynamic>;
-                    final sessionDate = DateFormat('dd/MM/yyyy').format((session['date'] as Timestamp).toDate());
-                    return ListTile(
-                      title: Text(
-                        sessionDate,
-                        style: TextStyle(color: Colors.white),
-                      ),
+                    final sessionData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                    final patientId = sessionData['patientId'];
+                    if (patientId == widget.patientId) {
+                      final diagnosis = sessionData['diagnosis'];
+                     
+                      return ListTile(
+                        title: Text(
+                          diagnosis,
+                          style: TextStyle(color: Colors.white),
+                        ),
                       onTap: () {
-                        // Implementar lógica para ir para a tela de detalhes da sessão
-                      },
-                    );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SessionDetailsScreen(diagnosis: diagnosis),
+                          ),
+                        );
+                        },
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
                   },
                 );
               },
