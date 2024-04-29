@@ -1,25 +1,101 @@
 import 'package:flutter/material.dart';
 
 class SessionDetailsScreen extends StatelessWidget {
-  final String diagnosis;
+  final String patientName;
+  final String document;
 
-  const SessionDetailsScreen({Key? key, required this.diagnosis}) : super(key: key);
+  final String diagnosis;
+  final String symptoms;
+  final String treatment;
+
+  const SessionDetailsScreen({
+    Key? key,
+    required this.patientName,
+    required this.document,
+    required this.diagnosis,
+    required this.symptoms,
+    required this.treatment,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Detalhes da Sessão'),
-      ),
-      body: Center(
+      body: Container(
+        decoration: BoxDecoration(
+          color: Colors.indigo,
+        ),
+        padding: EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Diagnóstico: $diagnosis',
-              style: TextStyle(fontSize: 24),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Text(
+                'Detalhes da Sessão:',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
             ),
-            // Adicione aqui mais campos para exibir outros detalhes da sessão
+            Text(
+              'Paciente:',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            SizedBox(height: 5),
+            Text(
+              patientName,
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Data:',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            SizedBox(height: 5),
+            Text(
+              document,
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Diagnóstico:',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            SizedBox(height: 5),
+            Text(
+              diagnosis,
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Sintomas:',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            SizedBox(height: 5),
+            Text(
+              symptoms,
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Tratamento:',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            SizedBox(height: 5),
+            Text(
+              treatment,
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            Spacer(), // Adicionando espaço flexível
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Voltar para a tela anterior
+                },
+                child: Text(
+                  'Voltar para Sessões',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
           ],
         ),
       ),

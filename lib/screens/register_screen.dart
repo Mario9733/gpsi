@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gpsi/screens/login_screen.dart';
 
 class RegisterScreen extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
@@ -81,7 +82,6 @@ class RegisterScreen extends StatelessWidget {
                         // Usando o e-mail como nome da coleção sem substituir os pontos
                         await _firestore.collection(email).doc('pacientes').set({});
                         await _firestore.collection(email).doc('sessoes').set({});
-                        await _firestore.collection(email).doc('agenda').set({});
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -105,6 +105,26 @@ class RegisterScreen extends StatelessWidget {
                   ),
                   child: Text('Cadastrar', style: TextStyle(color: Colors.indigo, fontSize: 18)),
                 ),
+                SizedBox(height: 20.0), // Adiciona espaço antes do botão "Voltar"
+                TextButton(
+                  onPressed: () {
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.arrow_back, color: Colors.white),
+                      Text(
+                        'Voltar',
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20.0), // Adiciona espaço após o botão "Voltar"
               ],
             ),
           ),

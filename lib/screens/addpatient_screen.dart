@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gpsi/models/patient.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
-import 'package:gpsi/models/patient.dart';
 import 'package:gpsi/app_styles.dart';
+import 'package:gpsi/screens/patient_list_screen.dart';
+import 'package:intl/intl.dart';
 
 class AddPatientScreen extends StatefulWidget {
   @override
@@ -22,14 +23,6 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
   final TextEditingController _bloodTypeController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-
-  late DateTime _selectedDate;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedDate = DateTime.now();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +104,6 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                         hintStyle: AppStyles.inputHintTextStyle,
                       ),
                       style: AppStyles.inputTextStyle,
-                      readOnly: true,
-                      onTap: _selectDate,
                     ),
                     SizedBox(height: 20.0),
                     TextFormField(
@@ -176,20 +167,41 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                       },
                     ),
                     SizedBox(height: 20.0),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: _addPatient,
-                        child: Text(
-                          'Adicionar Paciente',
-                          style: TextStyle(
-                            color: AppStyles.primaryColor,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _addPatient,
+                          child: Text(
+                            'Adicionar Paciente',
+                            style: TextStyle(
+                              color: AppStyles.primaryColor,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                        ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => PatientListScreen()), // Direciona para a tela home
+                          );
+                        },
+                          child: Text(
+                            'Voltar',
+                            style: TextStyle(
+                              color: AppStyles.primaryColor,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -199,21 +211,6 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
         ),
       ),
     );
-  }
-
-  void _selectDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        _dobController.text = DateFormat('dd/MM/yyyy').format(_selectedDate);
-      });
-    }
   }
 
   void _addPatient() async {

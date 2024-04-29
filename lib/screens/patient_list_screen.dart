@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gpsi/screens/addpatient_screen.dart';
+import 'package:gpsi/screens/home_screen.dart';
 import 'package:gpsi/screens/session_list_screen.dart';
 
 class PatientListScreen extends StatefulWidget {
@@ -108,6 +109,26 @@ class _PatientListScreenState extends State<PatientListScreen> {
               },
             ),
           ),
+          SizedBox(height: 20.0), // Adiciona espaço antes do botão "Voltar"
+          TextButton(
+            onPressed: () {
+                Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.arrow_back, color: Colors.white),
+                Text(
+                  'Voltar',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20.0), // Adiciona espaço após o botão "Voltar"
         ],
       ),
     );

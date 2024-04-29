@@ -140,6 +140,23 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
                 ),
               ),
             ),
+            SizedBox(height: 20.0), // Adiciona espaço antes do botão "Voltar"
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.arrow_back, color: Colors.white),
+                  Text(
+                    'Voltar',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20.0), // Adiciona espaço após o botão "Voltar"
           ],
         ),
       ),
