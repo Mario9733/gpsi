@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:gpsi/screens/session_list_screen.dart';
 import 'package:gpsi/screens/home_screen.dart'; // Importe sua tela de home aqui
 
 class AgendaScreen extends StatelessWidget {
@@ -124,6 +125,15 @@ class AgendaScreen extends StatelessWidget {
                   subtitle: Text(
                     'Próxima sessão: $formattedNextSessionDateTime $formattedNextSessionTime',
                     style: TextStyle(color: Colors.white), // Cor branca para a data e hora da sessão
+                  ),
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SessionListScreen(patientId: patientId, patientName: patientName)), // Direciona para a página de sessões do usuário
+                      );
+                    },
+                    child: Text('Sessões'),
                   ),
                 );
               },
