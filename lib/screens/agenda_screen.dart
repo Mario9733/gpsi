@@ -50,6 +50,8 @@ class AgendaScreen extends StatelessWidget {
       return Center(child: Text('Usuário não autenticado'));
     }
 
+    final currentDateTime = DateTime.now(); // Obtém a data e hora atual
+
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection(currentUser.email!) // Coleção principal com o nome do e-mail do usuário
@@ -72,10 +74,36 @@ class AgendaScreen extends StatelessWidget {
 
         final sessions = snapshot.data!.docs;
 
+        // Filtra as sessões para mostrar apenas as futuras
+        final futureSessions = sessions.where((session) {
+          final sessionData = session.data() as Map<String, dynamic>;
+          final nextSessionDate = sessionData['nextSessionDate'] as Timestamp;
+          final nextSessionTimeHour = sessionData['nextSessionTimeHour'] as int?;
+          final nextSessionTimeMinute = sessionData['nextSessionTimeMinute'] as int?;
+
+          if (nextSessionTimeHour == null || nextSessionTimeMinute == null) {
+            return false;
+          }
+
+          final nextSessionDateTime = DateTime(
+            nextSessionDate.toDate().year,
+            nextSessionDate.toDate().month,
+            nextSessionDate.toDate().day,
+            nextSessionTimeHour,
+            nextSessionTimeMinute,
+          );
+
+          return nextSessionDateTime.isAfter(currentDateTime); // Verifica se a sessão está no futuro
+        }).toList();
+
+        if (futureSessions.isEmpty) {
+          return Center(child: Text('Sem sessões agendadas para o futuro'));
+        }
+
         return ListView.builder(
-          itemCount: sessions.length,
+          itemCount: futureSessions.length,
           itemBuilder: (context, index) {
-            final sessionData = sessions[index].data() as Map<String, dynamic>;
+            final sessionData = futureSessions[index].data() as Map<String, dynamic>;
             final patientId = sessionData['patientId'];
             final nextSessionDateData = sessionData['nextSessionDate'];
             final nextSessionTimeHour = sessionData['nextSessionTimeHour'];
