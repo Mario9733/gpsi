@@ -12,3 +12,10 @@ Na caixa de pesquisa digite Flutter e escolha "Flutter: Run Flutter upgrade"
 em baixo escolha locale SDK e coloque endereço do zip desfeito
 
 Pronto, está funcionando.
+para exportar apk no temrinal vs é só digitar:
+flutter build apk
+
+pode criar uma conta ou usar a minha já preenchida os dados:
+mario@admin.com 
+senha:admin1234
+link firebase: https://console.firebase.google.com/u/0/project/gpsi-4d8c0/overview?hl=pt-br
